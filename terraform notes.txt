@@ -1,0 +1,115 @@
+ ----------Terraform-----------
+ 
+ Terraform written in HCL(hashicrop configuratiion language)
+ Terraform is infrastructure as a code
+ Terraform connect to AWS,Azure,git,GCP,etc...
+ 
+ -----------------------------------------------
+ Role in Terraform in devops:
+ 
+Terraform is  a open source infrastructure as a code, It supports multiple cloud providers and 
+automates the process of infrastructure setup, ensuring consistent and repeatable deployments.
+
+--------------------------------------------------------- 
+ 
+ Advantages:
+ 
+ 1.version control sysyem
+ 2.statement management:terraforn can be easily identified what is created,can be update easily
+ 3:cost optimization:terraform can be creating and deletingwith in 5 mins
+ 4:curd operations
+ 5:resourse management
+ ---------------------------------------
+ 
+ Creating EC2 instace through the Terraform:
+ 
+ whenever we create resource and terraform need terraform provider
+ 
+ Provider.tf:
+ ------------
+ terraform{
+  required.provider{
+   aws={
+    source= "hashicrop/aws"
+	version= "5.6.6.0"
+	}
+  }
+}
+provider= "aws"{
+ region="us-east-1"
+ }
+ 
+ ec2.tf
+ -------------
+ resource "aws_instance" "terraform" {
+
+    ami = "ami-09c813fb71547fc4f"
+    instance_type = "t3.micro"
+    vpc_security_group_ids = [aws_security_group.allow_ssh_terraform.id]
+    tags = {
+        Name = "terraform"
+    }
+}
+
+resource "aws_security_group" "allow_ssh_terraform" {
+    name        = "allow_sshh" #allow_ssh is already there in my account
+    description = "Allow port number 22 for SSH access"
+
+    # usually we allow everything in egress
+    egress {
+        from_port        = 0
+        to_port          = 0
+        protocol         = "-1"
+        cidr_blocks      = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+    }
+
+    ingress {
+        from_port        = 22
+        to_port          = 22
+        protocol         = "tcp"
+        cidr_blocks      = ["0.0.0.0/0"] #allow from everyone
+        ipv6_cidr_blocks = ["::/0"]
+    } 
+--------------------------------------------------------------
+Terraform variable:
+
+syntax:
+
+variable "name"{
+ type = "string"
+ default = neme or id "
+ description = "something related to topic"
+}
+
+---------------------------------------------------------
+terraform.tf variable:
+
+using this file, we can override the default variable or else you can set values also.
+
+suppose you creating one ec2 instance in that create one terraform.tfvars file
+
+ terraform.tfvars
+ -----
+instance_type = " t3 small"
+
+but in variable.tf : instance_type = "t2 micro"
+when you give plan terraform first consider terraform.tfvars
+---------------------------------------------------------------
+Terraform variable preferance 
+
+1.command line: in Terraform plan -var = insatnce_type = "t3.micro" consider as first
+2.terraform.tfvars
+3.environment variable: in gitbash first give this command - export TF.var.instance_type = "t2.something" after given terraform plan consider 3rd 
+  delete : unset TF.var.instance_type
+4.default
+5.promt	: manually given suppose we are not given any place that time asking instance_type
+----------------------------------------------------------------------
+Conditions:
+
+syntax:
+ expression ? "true" : "false"
+--------------------------------------------
+
+output:
+
